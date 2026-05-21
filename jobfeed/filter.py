@@ -9,7 +9,12 @@ from .sources.base import Job
 class FilterConfig:
     include_any: List[str]
     exclude_any: List[str]
+    title_include_any: List[str] = None  # if set, title must match at least one
     require_remote_or_eu: bool = False
+
+    def __post_init__(self):
+        if self.title_include_any is None:
+            self.title_include_any = []
 
 
 EU_HINTS = [
@@ -72,7 +77,8 @@ def _matches_any(haystack: str, needles: List[str]) -> bool:
 def apply_filter(jobs: List[Job], cfg: FilterConfig) -> List[Job]:
     out = []
     for job in jobs:
-        text = _words(
+        title_text = _words(job.title or "")
+        full_text = _words(
             " ".join(
                 [
                     job.title or "",
@@ -84,11 +90,16 @@ def apply_filter(jobs: List[Job], cfg: FilterConfig) -> List[Job]:
             )
         )
 
-        if cfg.include_any and not _matches_any(text, cfg.include_any):
+        # Title-level gate: if configured, the job title must match.
+        # This prevents jobs where a keyword only appears deep in the description
+        # (e.g. a robotics company that mentions "react" once in their stack list).
+        if cfg.title_include_any and not _matches_any(title_text, cfg.title_include_any):
             continue
-        if cfg.exclude_any and _matches_any(text, cfg.exclude_any):
+        if cfg.include_any and not _matches_any(full_text, cfg.include_any):
             continue
-        if cfg.require_remote_or_eu and not _matches_any(text, EU_HINTS):
+        if cfg.exclude_any and _matches_any(full_text, cfg.exclude_any):
+            continue
+        if cfg.require_remote_or_eu and not _matches_any(full_text, EU_HINTS):
             continue
         out.append(job)
     return out

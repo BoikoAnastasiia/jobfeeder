@@ -3,20 +3,33 @@
 # Secrets (Telegram token / chat id) live in environment variables / GitHub secrets.
 
 filter:
-  # A job must mention at least ONE of these to pass.
-  # Tailor to your stack — these are sensible defaults for a frontend dev.
+  # The job TITLE must contain at least one of these.
+  # This is the strict gate — prevents jobs where "react" only appears once
+  # deep in the description (e.g. a robotics company listing all their tools).
+  title_include_any:
+    - frontend
+    - front-end
+    - front end
+    - react
+    - next.js
+    - nextjs
+    - ui developer
+    - ui engineer
+    - web developer
+    - javascript developer
+    - typescript developer
+
+  # Full text (title + description + tags) must also contain at least one of these.
+  # Keeps the match honest even for sources that have rich tag/description data.
   include_any:
     - frontend
     - front-end
     - front end
     - react
-    - react native
     - next.js
     - nextjs
     - javascript
     - typescript
-    - vue
-    - svelte
     - web developer
 
   # If the job matches ANY of these, it's dropped (case-insensitive).

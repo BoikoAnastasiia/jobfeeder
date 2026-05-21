@@ -62,6 +62,7 @@ def main():
     cfg = load_config(args.config)
 
     fcfg = FilterConfig(
+        title_include_any=cfg["filter"].get("title_include_any", []),
         include_any=cfg["filter"].get("include_any", []),
         exclude_any=cfg["filter"].get("exclude_any", []),
         require_remote_or_eu=cfg["filter"].get("require_remote_or_eu", False),
