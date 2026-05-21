@@ -34,6 +34,9 @@ filter:
 
   # If the job matches ANY of these, it's dropped (case-insensitive).
   exclude_any:
+    - full stack
+    - fullstack
+    - full-stack
     - principal
     - staff engineer
     - engineering manager
@@ -71,6 +74,20 @@ sources:
   - name: justjoinit
     max_pages: 2
     per_page: 100
+
+  - name: arbeitnow
+
+  - name: remotive
+
+  - name: djinni
+    # keywords to search on djinni.co RSS feed
+    keywords:
+      - JavaScript
+      - TypeScript
+      - React
+      - Frontend
+    # english_level: "" means any level (blank = no filter)
+    english_level: ""
 
 # How many jobs to send in one bot run, max. Prevents spam on first run.
 max_per_run: 30
