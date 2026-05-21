@@ -57,7 +57,7 @@ class Djinni(Source):
                         url=link,
                         description=summary[:1500],
                         tags=[kw],
-                        location="",
+                        location="ukraine",
                         posted_at=entry.get("published", ""),
                     )
                 )

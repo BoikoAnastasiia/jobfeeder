@@ -54,6 +54,18 @@ filter:
     - sales
     - recruiter
     - clearance
+    # US-only jobs — remote but restricted to US residents/citizens
+    - us only
+    - usa only
+    - united states only
+    - north america only
+    - must be located in the us
+    - must reside in the us
+    - must be based in the us
+    - authorized to work in the us
+    - us work authorization
+    - us citizens only
+    - us residents only
 
   # If true, drop jobs that don't mention remote work or a European
   # country/region. Helpful for Ukrainian/Slovakia/Croatia-based candidates.
