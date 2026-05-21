@@ -1,0 +1,49 @@
+name: job-feed-bot
+
+on:
+  schedule:
+    # Every 4 hours. Cron is UTC.
+    - cron: "17 */4 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write   # needed to commit updated seen.json
+
+concurrency:
+  group: job-feed-bot
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run bot
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python main.py
+
+      - name: Commit updated state
+        run: |
+          if [[ -n "$(git status --porcelain seen.json)" ]]; then
+            git config user.name  "job-feed-bot"
+            git config user.email "actions@users.noreply.github.com"
+            git add seen.json
+            git commit -m "chore: update seen.json [skip ci]"
+            git push
+          else
+            echo "no state changes"
+          fi

@@ -1,0 +1,66 @@
+# Filtering rules for job posts.
+# Keep this file in the repo — it's not secret.
+# Secrets (Telegram token / chat id) live in environment variables / GitHub secrets.
+
+filter:
+  # A job must mention at least ONE of these to pass.
+  # Tailor to your stack — these are sensible defaults for a frontend dev.
+  include_any:
+    - frontend
+    - front-end
+    - front end
+    - react
+    - react native
+    - next.js
+    - nextjs
+    - javascript
+    - typescript
+    - vue
+    - svelte
+    - web developer
+
+  # If the job matches ANY of these, it's dropped (case-insensitive).
+  exclude_any:
+    - principal
+    - staff engineer
+    - engineering manager
+    - head of
+    - cto
+    - founding engineer
+    - unpaid
+    - commission only
+    - php
+    - wordpress
+    - solidity
+    - blockchain
+    - web3
+    - crypto
+    - sales
+    - recruiter
+    - clearance
+
+  # If true, drop jobs that don't mention remote work or a European
+  # country/region. Helpful for Ukrainian/Slovakia/Croatia-based candidates.
+  require_remote_or_eu: true
+
+# Which job boards to poll. Drop or comment any you don't want.
+sources:
+  - name: hackernews
+    # Leave thread_id blank to auto-discover the current month's
+    # "Ask HN: Who is hiring?" thread.
+    thread_id: null
+    max_comments: 400
+
+  - name: remoteok
+
+  - name: weworkremotely
+
+  - name: justjoinit
+    max_pages: 2
+    per_page: 100
+
+# How many jobs to send in one bot run, max. Prevents spam on first run.
+max_per_run: 30
+
+# Path to the dedupe state file (kept inside the repo by default).
+state_path: seen.json
