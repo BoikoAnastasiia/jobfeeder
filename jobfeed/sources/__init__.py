@@ -6,6 +6,7 @@ from .justjoinit import JustJoinIt
 from .arbeitnow import Arbeitnow
 from .remotive import Remotive
 from .djinni import Djinni
+from .dou import Dou
 
 REGISTRY = {
     "hackernews": HackerNewsWhoIsHiring,
@@ -15,6 +16,7 @@ REGISTRY = {
     "arbeitnow": Arbeitnow,
     "remotive": Remotive,
     "djinni": Djinni,
+    "dou": Dou,
 }
 
 __all__ = [
@@ -28,4 +30,5 @@ __all__ = [
     "Arbeitnow",
     "Remotive",
     "Djinni",
+    "Dou",
 ]

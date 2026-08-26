@@ -31,6 +31,7 @@ def format_job(job: Job) -> str:
         "remoteok": "RemoteOK",
         "weworkremotely": "WeWorkRemotely",
         "justjoinit": "JustJoin.it",
+        "dou": "DOU.ua",
     }.get(job.source, job.source)
 
     lines = [f"<b>{title}</b>"]

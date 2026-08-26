@@ -18,6 +18,9 @@ filter:
     - web developer
     - javascript developer
     - typescript developer
+    - fullstack
+    - full-stack
+    - full stack
 
   # Full text (title + description + tags) must also contain at least one of these.
   # Keeps the match honest even for sources that have rich tag/description data.
@@ -31,12 +34,11 @@ filter:
     - javascript
     - typescript
     - web developer
+    - node.js
+    - nodejs
 
   # If the job matches ANY of these, it's dropped (case-insensitive).
   exclude_any:
-    - full stack
-    - fullstack
-    - full-stack
     - principal
     - staff engineer
     - engineering manager
@@ -100,6 +102,20 @@ sources:
       - Frontend
     # english_level: "" means any level (blank = no filter)
     english_level: ""
+
+  - name: dou
+    # jobs.dou.ua category feeds (names must match DOU's own category labels).
+    categories:
+      - Front End
+      - Fullstack
+      - JavaScript
+      - Node.js
+    # Company slugs to follow directly — the bit after /companies/ in the URL.
+    # Company feeds surface postings that never show up in a category feed.
+    companies:
+      - techmagic
+    # true = only pull the "віддалено" (remote) slice of each category feed.
+    remote_only: false
 
 # How many jobs to send in one bot run, max. Prevents spam on first run.
 max_per_run: 30

@@ -14,6 +14,13 @@ GitHub Actions, so you don't need a server.
 | RemoteOK | Public JSON API |
 | WeWorkRemotely | Public RSS feeds |
 | JustJoin.it | Public v2 offers API (EU/PL, frequently hires Ukrainian engineers) |
+| DOU.ua | Public RSS feeds — per category, plus per-company feeds |
+
+> **DOU company feeds.** Some companies post roles that never surface in a
+> category feed. Follow them directly by adding the company slug (the bit
+> after `/companies/` in the URL) to `sources.dou.companies` in
+> `config.yaml` — e.g. `https://jobs.dou.ua/companies/techmagic/vacancies/`
+> → `techmagic`.
 
 > **LinkedIn?** There's no legal/stable public API for job search. The
 > recommended workaround is to subscribe to LinkedIn's email job alerts and
@@ -61,7 +68,10 @@ Edit `config.yaml` to change keyword filters, which sources to poll, etc.
   mention remote work or a European country/region. Useful if you can't
   easily relocate to the US.
 - `max_per_run` — caps the number of messages sent per run, so the first
-  run doesn't flood the chat with hundreds of historical posts.
+  run doesn't flood the chat with hundreds of historical posts. Sources are
+  polled in the order they appear in `config.yaml` and the cap is applied to
+  the combined list, so a source near the bottom only gets through once the
+  ones above it run dry.
 
 The dedupe state is kept in `seen.json` and committed back to the repo by
 the GitHub Actions workflow.
