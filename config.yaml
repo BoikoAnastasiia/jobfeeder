@@ -56,7 +56,9 @@ filter:
     - sales
     - recruiter
     - clearance
-    # US-only jobs — remote but restricted to US residents/citizens
+    # Residency-restricted jobs — remote, but only for locals of a country
+    # that's out of reach. Matched against the full text, so these are spelled
+    # out as phrases; bare country names live under filter.geo.exclude_any.
     - us only
     - usa only
     - united states only
@@ -68,10 +70,263 @@ filter:
     - us work authorization
     - us citizens only
     - us residents only
+    - canada only
+    - canadian residents
+    - must be based in canada
+    - australia only
+    - must be based in australia
+    - new zealand only
+    - germany only
+    - must be based in germany
+    - must reside in germany
+    - german language required
+    - fluent german
+    - german speaking
+    - work permit required
+    - visa sponsorship not available
+    - we do not sponsor
+    - no visa sponsorship
 
-  # If true, drop jobs that don't mention remote work or a European
-  # country/region. Helpful for Ukrainian/Slovakia/Croatia-based candidates.
-  require_remote_or_eu: true
+  # If true, run the three-step geo gate below (always_allow -> exclude -> allow).
+  require_allowed_geo: true
+
+  # Where you can realistically work. An entry starting with "re:" is a regex;
+  # everything else is a plain phrase (single words match on word boundaries,
+  # multi-word phrases match as substrings). All matching is case-insensitive.
+  geo:
+    # Step 1 — hard keep. Matched against the WHOLE post (title + description).
+    # A post that asks for Ukrainian, or names Ukraine/Croatia/Slovakia, can
+    # hire from there no matter where the company itself sits, so it survives
+    # even if a blocked country is mentioned too.
+    always_allow_any:
+      - ukraine
+      - ukrainian
+      - kyiv
+      - kiev
+      - lviv
+      - kharkiv
+      - odesa
+      - odessa
+      - dnipro
+      - croatia
+      - croatian
+      - zagreb
+      - rijeka
+      - osijek
+      - slovakia
+      - slovak
+      - bratislava
+      - kosice
+      - "košice"
+
+    # Step 2 — blocked countries: visa/relocation impossible, or the post is
+    # restricted to local residents.
+    # Matched ONLY against the geo-bearing fields (title + location + tags),
+    # never the description — otherwise "we have an office in Toronto" would
+    # sink an otherwise fine worldwide-remote post.
+    exclude_any:
+      # --- United States ---
+      - united states
+      - "re:\\busa\\b"
+      - "re:\\bu\\.s\\.a?\\b"
+      - "re:\\(\\s*us\\b"                                # "REMOTE (US)", "(US & Canada)"
+      - "re:\\|\\s*us\\b"                                # "| US" — pipe-separated location
+      - "re:\\bus\\s*[&/+]\\s*canada\\b"
+      - "re:\\bus[\\s\\-]?(?:only|based|remote|citizens?|residents?)\\b"
+      - "re:\\bremote\\s*[-:|–—]?\\s*us\\b"            # "Remote US", "REMOTE - US"
+      - north america
+      - americas
+      # "City, ST" — only the state codes that aren't also English words
+      # (OR/IN/ME/OK/HI/DE/LA/CO are deliberately left out).
+      - "re:,\\s*(?:ca|tx|ny|nj|pa|ma|il|fl|ga|nc|sc|va|wa|az|nv|ut|mn|mi|oh|tn|mo|wi|ct|md)\\b"
+      - san francisco
+      - bay area
+      - silicon valley
+      - new york
+      - nyc
+      - brooklyn
+      - los angeles
+      - san diego
+      - san jose
+      - palo alto
+      - mountain view
+      - seattle
+      - austin
+      - boston
+      - chicago
+      - denver
+      - boulder
+      - atlanta
+      - dallas
+      - houston
+      - miami
+      - portland
+      - phoenix
+      - philadelphia
+      - minneapolis
+      - nashville
+      - washington dc
+      # --- Canada ---
+      - canada
+      - canadian
+      - toronto
+      - vancouver
+      - montreal
+      - ottawa
+      - calgary
+      # --- Australia / New Zealand ---
+      - australia
+      - australian
+      - sydney
+      - melbourne
+      - brisbane
+      - perth
+      - new zealand
+      - auckland
+      - wellington
+      # --- Germany ---
+      - germany
+      - german
+      - berlin
+      - munich
+      - "münchen"
+      - hamburg
+      - frankfurt
+      - cologne
+      - "köln"
+      - "düsseldorf"
+      - dusseldorf
+      - stuttgart
+      - nuremberg
+      - leipzig
+      - dresden
+      # --- Outside Europe entirely ---
+      - india
+      - bengaluru
+      - bangalore
+      - mumbai
+      - delhi
+      - hyderabad
+      - pune
+      - chennai
+      - latam
+      - latin america
+      - colombia
+      - bogota
+      - brazil
+      - brasil
+      - sao paulo
+      - "são paulo"
+      - argentina
+      - buenos aires
+      - mexico
+      - chile
+      - peru
+      - philippines
+      - manila
+      - indonesia
+      - vietnam
+      - singapore
+      - japan
+      - tokyo
+      - china
+      - hong kong
+      - dubai
+      - uae
+      - israel
+      - tel aviv
+      - south africa
+      - cape town
+      - nigeria
+      - kenya
+      # --- Language markers ---
+      # A posting written in German or Spanish/Portuguese is aimed at a market
+      # you can't serve, whatever the location field says.
+      - m/w/d
+      - w/m/d
+      - m/f/d
+      - entwickler
+      - entwicklerin
+      - festanstellung
+      - unbefristet
+      - desarrollador
+      - desarrolladora
+      - programador
+      - desenvolvedor
+
+    # Step 3 — the post must mention at least one of these somewhere, or it's
+    # dropped. Remote / Europe-wide / worldwide keeps the feed full; the named
+    # countries are the ones where a local or B2B contract is realistic.
+    # Leave the list empty to accept anything that survived step 2.
+    allow_any:
+      # remote-first phrasing
+      - remote
+      - europe
+      - european
+      - eu
+      - emea
+      - worldwide
+      - anywhere
+      # Croatia / Slovakia / Ukraine
+      - croatia
+      - zagreb
+      - slovakia
+      - bratislava
+      - kosice
+      - ukraine
+      - ukrainian
+      - kyiv
+      - kiev
+      - lviv
+      - kharkiv
+      - odesa
+      # Poland / Czechia
+      - poland
+      - polish
+      - warsaw
+      - warszawa
+      - krakow
+      - "kraków"
+      - wroclaw
+      - gdansk
+      - poznan
+      - czech
+      - czechia
+      - prague
+      - praha
+      - brno
+      # Baltics
+      - estonia
+      - tallinn
+      - tartu
+      - latvia
+      - riga
+      - lithuania
+      - vilnius
+      - kaunas
+      # Portugal / Spain
+      - portugal
+      - lisbon
+      - lisboa
+      - porto
+      - spain
+      - madrid
+      - barcelona
+      - valencia
+      - malaga
+      # Austria
+      - austria
+      - vienna
+      - wien
+      - graz
+
+    # Boards that only ever list remote work. Their posts skip step 3, because
+    # many never spell the word "remote" out in the body. Step 2 still applies,
+    # so a "REMOTE (US)" post from one of these is still dropped.
+    remote_sources:
+      - remoteok
+      - weworkremotely
+      - remotive
 
 # Which job boards to poll. Drop or comment any you don't want.
 sources:

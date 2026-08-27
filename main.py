@@ -61,11 +61,16 @@ def main():
     load_dotenv()
     cfg = load_config(args.config)
 
+    geo = cfg["filter"].get("geo", {}) or {}
     fcfg = FilterConfig(
         title_include_any=cfg["filter"].get("title_include_any", []),
         include_any=cfg["filter"].get("include_any", []),
         exclude_any=cfg["filter"].get("exclude_any", []),
-        require_remote_or_eu=cfg["filter"].get("require_remote_or_eu", False),
+        require_allowed_geo=cfg["filter"].get("require_allowed_geo", False),
+        geo_always_allow_any=geo.get("always_allow_any", []),
+        geo_exclude_any=geo.get("exclude_any", []),
+        geo_allow_any=geo.get("allow_any", []),
+        geo_remote_sources=geo.get("remote_sources", []),
     )
 
     state_path = cfg.get("state_path", "seen.json")

@@ -64,9 +64,33 @@ Edit `config.yaml` to change keyword filters, which sources to poll, etc.
   insensitive) to pass.
 - `filter.exclude_any` — drop jobs that mention any of these (e.g. `senior`,
   `staff`, technologies you don't want, etc.).
-- `filter.require_remote_or_eu` — extra gate that drops jobs that don't
-  mention remote work or a European country/region. Useful if you can't
-  easily relocate to the US.
+- `filter.require_allowed_geo` — turns on the geo gate below.
+- `filter.geo` — where you can realistically work, in three steps:
+  1. `always_allow_any` — matched against the **whole post**. A hit keeps the
+     job no matter what else it says, on the theory that a post asking for
+     Ukrainian (or naming Ukraine/Croatia/Slovakia) can hire from there
+     wherever the company itself sits.
+  2. `exclude_any` — countries that are out of reach. Matched **only against
+     the title, location and tags**, i.e. the fields that actually declare
+     where a job is tied to. Deliberately not the description, so a post that
+     merely lists offices ("we have entities in Canada and Germany") doesn't
+     get dropped.
+  3. `allow_any` — the post must mention one of these somewhere, or it's
+     dropped. `remote` / `europe` / `worldwide` keep the feed full; the named
+     countries are the ones where a local or B2B contract is realistic. Leave
+     the list empty to accept anything that survived step 2.
+
+  `remote_sources` lists boards that only ever carry remote work (RemoteOK,
+  WeWorkRemotely, Remotive); their posts skip step 3, since many never spell
+  the word "remote" out in the body. Step 2 still applies to them.
+
+  Entries starting with `re:` are regular expressions — that's how
+  `REMOTE (US)` and `REMOTE (US & Canada)` get caught without a bare `us`
+  matching the English word. Everything else is a plain phrase: single words
+  match on word boundaries, multi-word phrases match as substrings.
+After changing the geo lists, run `python tests/test_filter.py` — it checks a
+set of real postings still land on the right side of the gate.
+
 - `max_per_run` — caps the number of messages sent per run, so the first
   run doesn't flood the chat with hundreds of historical posts. Sources are
   polled in the order they appear in `config.yaml` and the cap is applied to
