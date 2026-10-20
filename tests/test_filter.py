@@ -45,6 +45,25 @@ CASES = [
     (True, "hackernews", "Widget Co | Frontend Engineer | REMOTE (US)", "", "React. Our team is in Kyiv, Ukraine and we hire Ukrainian contractors."),
     # a worldwide post that merely lists office locations must survive
     (True, "hackernews", "Globex | Senior Frontend Engineer | REMOTE (Worldwide)", "", "React. We have entities in Canada, Germany and Australia but hire contractors anywhere."),
+    # product engineer is a frontend/fullstack title too
+    (True, "hackernews", "Linear | Product Engineer | Remote (Europe)", "", "React, TypeScript, Node.js."),
+    # Slovak region names count as an allowed location
+    (True, "profesia", "Data Engineer - Frontend Developer", "Trnavský kraj", "React, TypeScript, JavaScript."),
+    # a Slovak requirement spelled out in an English body
+    (False, "hackernews", "Frontend Developer | Bratislava", "", "React. Fluent Slovak is required."),
+]
+
+# (should_be_kept, source, title, location, languages) — the known_languages gate.
+LANGUAGE_CASES = [
+    (True, "titans", "React Developer", "100% Remote", ["English"]),
+    (False, "titans", "ReactJS programmer", "100% Remote", ["English", "Slovak or Czech"]),
+    (False, "titans", "React Native programmer", "100% Remote", ["Slovak or Czech"]),
+    (False, "titans", "Fullstack Developer [Java, Angular]", "Viedeň, 80% Remote", ["English", "German"]),
+    (True, "profesia", "Frontend Developer (HTML/CSS)", "Košice, Slovakia", ["English"]),
+    # written in Slovak -> the source marks Slovak as required
+    (False, "profesia", "Senior Frontend Engineer / Javascript, React.js", "Bratislava", ["Slovak", "English"]),
+    # no language data -> not affected
+    (True, "profesia", "Frontend Developer", "Bratislava", []),
 ]
 
 
@@ -61,6 +80,7 @@ def build_config(path="config.yaml"):
         geo_exclude_any=geo.get("exclude_any", []),
         geo_allow_any=geo.get("allow_any", []),
         geo_remote_sources=geo.get("remote_sources", []),
+        known_languages=cfg.get("known_languages", []),
     )
 
 
@@ -70,17 +90,24 @@ def main():
         Job(source=src, external_id=str(i), title=t, company="", url="", description=d, location=loc)
         for i, (_, src, t, loc, d) in enumerate(CASES)
     ]
+    jobs += [
+        Job(source=src, external_id=f"lang{i}", title=t, company="", url="",
+            description="React, TypeScript.", location=loc, languages=langs)
+        for i, (_, src, t, loc, langs) in enumerate(LANGUAGE_CASES)
+    ]
     kept = {j.external_id for j in apply_filter(jobs, fc)}
 
+    cases = [(str(i),) + c for i, c in enumerate(CASES)]
+    cases += [(f"lang{i}",) + c for i, c in enumerate(LANGUAGE_CASES)]
     failed = 0
-    for i, (expected, src, title, loc, _) in enumerate(CASES):
-        got = str(i) in kept
+    for job_id, expected, src, title, loc, _ in cases:
+        got = job_id in kept
         if got != expected:
             failed += 1
             want = "KEEP" if expected else "DROP"
             print(f"FAIL  expected {want}  [{src}] {title}  |{loc}")
 
-    print(f"{len(CASES) - failed}/{len(CASES)} passed")
+    print(f"{len(cases) - failed}/{len(cases)} passed")
     return 1 if failed else 0
 
 

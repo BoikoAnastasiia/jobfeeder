@@ -6,7 +6,8 @@ filter:
   # The job TITLE must contain at least one of these.
   # This is the strict gate — prevents jobs where "react" only appears once
   # deep in the description (e.g. a robotics company listing all their tools).
-  title_include_any:
+  # (&title_keywords is a YAML anchor — the profesia source reuses this list.)
+  title_include_any: &title_keywords
     - frontend
     - front-end
     - front end
@@ -21,6 +22,8 @@ filter:
     - fullstack
     - full-stack
     - full stack
+    # newer name for a frontend-leaning fullstack role
+    - product engineer
 
   # Full text (title + description + tags) must also contain at least one of these.
   # Keeps the match honest even for sources that have rich tag/description data.
@@ -82,10 +85,34 @@ filter:
     - german language required
     - fluent german
     - german speaking
+    # Slovak / Czech requirements spelled out in an English post body.
+    - fluent slovak
+    - fluent czech
+    - native slovak
+    - native czech
+    - slovak language required
+    - czech language required
+    - slovak is required
+    - slovak is a must
+    - czech is required
+    - czech is a must
+    - slovak or czech
+    - czech or slovak
+    - slovak/czech
+    - czech/slovak
     - work permit required
     - visa sponsorship not available
     - we do not sponsor
     - no visa sponsorship
+
+  # Languages you can work in. Sources that declare a post's required
+  # languages (titans, profesia) drop any post needing a language not listed
+  # here; "Slovak or Czech" passes if either one is listed. A profesia post
+  # written in Slovak/Czech counts as requiring that language.
+  # Sources that don't declare languages are unaffected.
+  known_languages:
+    - english
+    - ukrainian
 
   # If true, run the three-step geo gate below (always_allow -> exclude -> allow).
   require_allowed_geo: true
@@ -273,6 +300,18 @@ filter:
       - slovakia
       - bratislava
       - kosice
+      - "košice"
+      - zilina
+      - "žilina"
+      - trnava
+      - nitra
+      - presov
+      - "prešov"
+      - trencin
+      - "trenčín"
+      - banska bystrica
+      - "banská bystrica"
+      - "re:\\bkraj\\b"                              # Slovak/Czech region, e.g. "Trnavský kraj"
       - ukraine
       - ukrainian
       - kyiv
@@ -371,6 +410,23 @@ sources:
       - techmagic
     # true = only pull the "віддалено" (remote) slice of each category feed.
     remote_only: false
+
+  - name: titans
+    # join.titans.eu — SK/CZ IT contracting. Pulls every open position (they're
+    # listed first); stops at the first already-filled one.
+    max_pages: 5
+
+  - name: profesia
+    # profesia.sk full-text searches. Each offer whose title matches the title
+    # keywords gets its detail page fetched to check its language requirements.
+    keywords:
+      - frontend
+      - react
+      - full stack
+      - javascript
+      - product engineer
+    max_pages: 2
+    title_keywords: *title_keywords
 
 # How many jobs to send in one bot run, max. Prevents spam on first run.
 max_per_run: 30

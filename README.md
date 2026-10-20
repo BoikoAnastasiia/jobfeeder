@@ -15,6 +15,8 @@ GitHub Actions, so you don't need a server.
 | WeWorkRemotely | Public RSS feeds |
 | JustJoin.it | Public v2 offers API (EU/PL, frequently hires Ukrainian engineers) |
 | DOU.ua | Public RSS feeds — per category, plus per-company feeds |
+| join.titans.eu | HTML scrape of the open positions list (SK/CZ IT contracting) |
+| Profesia.sk | HTML scrape of keyword searches, plus each matching offer's detail page for its language requirements |
 
 > **DOU company feeds.** Some companies post roles that never surface in a
 > category feed. Follow them directly by adding the company slug (the bit
@@ -91,6 +93,14 @@ Edit `config.yaml` to change keyword filters, which sources to poll, etc.
 After changing the geo lists, run `python tests/test_filter.py` — it checks a
 set of real postings still land on the right side of the gate.
 
+- `filter.known_languages` — languages you can work in. Sources that declare
+  which languages a post requires (Titans lists them on every card; Profesia
+  has a "Language skills" section) drop any post needing a language outside
+  this list. An entry like "Slovak or Czech" passes if either is listed. A
+  Profesia post *written* in Slovak or Czech counts as requiring that
+  language. Other sources don't declare languages, so they rely on phrases in
+  `filter.exclude_any` (`fluent slovak`, `german language required`, …).
+
 - `max_per_run` — caps the number of messages sent per run, so the first
   run doesn't flood the chat with hundreds of historical posts. Sources are
   polled in the order they appear in `config.yaml` and the cap is applied to
@@ -130,7 +140,9 @@ job-feed-bot/
 │       ├── hackernews.py
 │       ├── remoteok.py
 │       ├── weworkremotely.py
-│       └── justjoinit.py
+│       ├── justjoinit.py
+│       ├── titans.py
+│       └── profesia.py
 └── .github/workflows/run.yml     # cron-based runner
 ```
 

@@ -71,6 +71,7 @@ def main():
         geo_exclude_any=geo.get("exclude_any", []),
         geo_allow_any=geo.get("allow_any", []),
         geo_remote_sources=geo.get("remote_sources", []),
+        known_languages=cfg["filter"].get("known_languages", []),
     )
 
     state_path = cfg.get("state_path", "seen.json")

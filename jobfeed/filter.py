@@ -15,6 +15,7 @@ class FilterConfig:
     geo_exclude_any: List[str] = None
     geo_allow_any: List[str] = None
     geo_remote_sources: List[str] = None
+    known_languages: List[str] = None  # if set, every language a post requires must be in here
 
     def __post_init__(self):
         if self.title_include_any is None:
@@ -27,6 +28,8 @@ class FilterConfig:
             self.geo_allow_any = []
         if self.geo_remote_sources is None:
             self.geo_remote_sources = []
+        if self.known_languages is None:
+            self.known_languages = []
 
 
 # --------------------------------------------------------------------------
@@ -79,6 +82,22 @@ def _passes_geo(
     return _matches_any(full_text, cfg.geo_allow_any)
 
 
+def _passes_languages(job: Job, cfg: FilterConfig) -> bool:
+    """Every language the source says the post requires must be one you know.
+
+    An entry may offer alternatives ("Slovak or Czech", "English/German"); one
+    known alternative is enough to satisfy it.
+    """
+    if not cfg.known_languages or not job.languages:
+        return True
+    known = {lang.lower().strip() for lang in cfg.known_languages}
+    for entry in job.languages:
+        options = re.split(r"\s+or\s+|\s*/\s*|\s*,\s*", entry.lower().strip())
+        if not any(o.strip() in known for o in options if o.strip()):
+            return False
+    return True
+
+
 def apply_filter(jobs: List[Job], cfg: FilterConfig) -> List[Job]:
     out = []
     for job in jobs:
@@ -108,6 +127,8 @@ def apply_filter(jobs: List[Job], cfg: FilterConfig) -> List[Job]:
         if cfg.include_any and not _matches_any(full_text, cfg.include_any):
             continue
         if cfg.exclude_any and _matches_any(full_text, cfg.exclude_any):
+            continue
+        if not _passes_languages(job, cfg):
             continue
         implicit_remote = job.source in cfg.geo_remote_sources
         if cfg.require_allowed_geo and not _passes_geo(

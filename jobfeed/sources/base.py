@@ -14,10 +14,15 @@ class Job:
     tags: List[str] = None
     location: str = ""
     posted_at: str = ""
+    # Languages the post requires, as the source declares them. An entry may
+    # list alternatives ("Slovak or Czech"). Empty = the source doesn't say.
+    languages: List[str] = None
 
     def __post_init__(self):
         if self.tags is None:
             self.tags = []
+        if self.languages is None:
+            self.languages = []
 
     @property
     def uid(self) -> str:

@@ -7,6 +7,8 @@ from .arbeitnow import Arbeitnow
 from .remotive import Remotive
 from .djinni import Djinni
 from .dou import Dou
+from .profesia import Profesia
+from .titans import Titans
 
 REGISTRY = {
     "hackernews": HackerNewsWhoIsHiring,
@@ -17,6 +19,8 @@ REGISTRY = {
     "remotive": Remotive,
     "djinni": Djinni,
     "dou": Dou,
+    "profesia": Profesia,
+    "titans": Titans,
 }
 
 __all__ = [
@@ -31,4 +35,6 @@ __all__ = [
     "Remotive",
     "Djinni",
     "Dou",
+    "Profesia",
+    "Titans",
 ]
